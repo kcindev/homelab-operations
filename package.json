@@ -1,0 +1,21 @@
+{
+  "name": "homelab-operations-platform",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": ["frontend", "backend"],
+  "engines": { "node": ">=22.12.0", "npm": ">=10" },
+  "scripts": {
+    "dev": "concurrently --kill-others --names backend,frontend \"npm run dev --workspace backend\" \"npm run dev --workspace frontend\"",
+    "test": "npm run test --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "build": "npm run build --workspaces"
+  },
+  "overrides": {
+    "concurrently": { "shell-quote": "^1.12.0" }
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0",
+    "typescript": "^5.9.0",
+    "vitest": "^4.0.0"
+  }
+}

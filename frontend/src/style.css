@@ -1,0 +1,19 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #e5eaf3;
+  background: #101827;
+  font-synthesis: none;
+  line-height: 1.6;
+}
+body { margin: 0; }
+main { max-width: 720px; margin: 12vh auto; padding: 24px; }
+h1 { font-size: clamp(1.7rem, 4vw, 2.4rem); line-height: 1.2; }
+.health-card { margin-top: 32px; padding: 24px; border: 1px solid #36435b; border-radius: 12px; background: #182338; }
+.api-status { display: flex; align-items: center; gap: 12px; font-size: 1.15rem; font-weight: 600; }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; background: #a4b0c5; }
+.healthy .status-dot { background: #65d9a4; }
+.unavailable .status-dot { background: #ff9393; }
+.hint { color: #c0cbe0; }
+button { background: #e5eaf3; color: #101827; border: 0; border-radius: 6px; padding: 10px 16px; font: inherit; cursor: pointer; }
+button:disabled { opacity: 0.55; cursor: wait; }
+button:focus-visible { outline: 3px solid #65d9a4; outline-offset: 4px; }
