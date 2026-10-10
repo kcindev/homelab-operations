@@ -2,9 +2,13 @@ import { buildApp } from './app.js';
 import { readDatabaseUrl } from './config.js';
 import { checkDatabaseConnection } from './db/connectivity.js';
 import { createPool } from './db/pool.js';
+import { createServerRepository } from './repositories/server-repository.js';
 
 const pool = createPool(readDatabaseUrl());
-const app = buildApp({ checkDatabase: () => checkDatabaseConnection(pool) });
+const app = buildApp({
+  checkDatabase: () => checkDatabaseConnection(pool),
+  serverRepository: createServerRepository(pool),
+});
 const port = Number(process.env.PORT ?? '3001');
 const host = process.env.HOST ?? '127.0.0.1';
 

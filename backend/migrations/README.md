@@ -2,8 +2,7 @@
 
 Versioned SQL migrations applied by `npm run db:migrate --workspace backend`.
 
-There are no migrations yet. The runner creates its own `schema_migrations`
-tracking table on first run.
+The runner creates its own `schema_migrations` tracking table on first run.
 
 ## Rules
 

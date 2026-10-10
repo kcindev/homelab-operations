@@ -1,9 +1,10 @@
 import { expect, it, vi } from 'vitest';
 import { buildApp } from '../src/app.js';
+import { createInMemoryServerRepository } from './support/in-memory-server-repository.js';
 
 it('GET /api/v1/ready returns 200 when the database check succeeds', async () => {
   const checkDatabase = vi.fn(async () => {});
-  const app = buildApp({ checkDatabase }, { logger: false });
+  const app = buildApp({ checkDatabase, serverRepository: createInMemoryServerRepository() }, { logger: false });
   try {
     const response = await app.inject({ method: 'GET', url: '/api/v1/ready' });
     expect(response.statusCode).toBe(200);
@@ -20,7 +21,7 @@ it('GET /api/v1/ready returns 503 without leaking error details when the databas
   const checkDatabase = vi.fn(async () => {
     throw new Error(secretDetail);
   });
-  const app = buildApp({ checkDatabase }, { logger: false });
+  const app = buildApp({ checkDatabase, serverRepository: createInMemoryServerRepository() }, { logger: false });
   try {
     const response = await app.inject({ method: 'GET', url: '/api/v1/ready' });
     expect(response.statusCode).toBe(503);

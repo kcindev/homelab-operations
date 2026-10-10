@@ -1,12 +1,37 @@
 import Fastify, { type FastifyServerOptions } from 'fastify';
+import type { ServerRepository } from './repositories/server-repository.js';
+import { registerServerRoutes } from './routes/servers.js';
 
 export interface AppDependencies {
   /** Resolves when the database answers a trivial query; rejects otherwise. */
   checkDatabase: () => Promise<void>;
+  serverRepository: ServerRepository;
 }
 
 export function buildApp(dependencies: AppDependencies, options: FastifyServerOptions = {}) {
-  const app = Fastify({ logger: true, ...options });
+  const app = Fastify({
+    logger: true,
+    ajv: { customOptions: { coerceTypes: false, removeAdditional: false } },
+    ...options,
+  });
+
+  // Fastify's default handler puts error.message and error.code in 500 responses,
+  // which would expose PostgreSQL error details. 4xx errors keep the default handling.
+  app.setErrorHandler((error, request, reply) => {
+    const statusCode =
+      error instanceof Error && 'statusCode' in error && typeof error.statusCode === 'number'
+        ? error.statusCode
+        : 500;
+    if (statusCode < 500) {
+      return reply.send(error);
+    }
+    request.log.error({ err: error }, 'Unhandled error');
+    return reply.code(500).send({
+      statusCode: 500,
+      error: 'Internal Server Error',
+      message: 'An unexpected error occurred',
+    });
+  });
 
   app.get<{ Reply: { status: 'ok' } }>('/api/v1/health', {
     schema: {
@@ -58,6 +83,8 @@ export function buildApp(dependencies: AppDependencies, options: FastifyServerOp
     }
     return reply.code(200).send({ status: 'ready', database: 'ok' });
   });
+
+  registerServerRoutes(app, dependencies.serverRepository);
 
   return app;
 }
