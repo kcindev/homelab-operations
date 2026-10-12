@@ -1,6 +1,6 @@
-import { DatabaseError, type Pool } from 'pg';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { createServerRepository, DuplicateServerNameError } from '../src/repositories/server-repository.js';
+import { fakePool, pgError } from './support/pg-fakes.js';
 
 const row = {
   id: '3f6f1c2e-8a4b-4c1d-9e2f-0a1b2c3d4e5f',
@@ -12,15 +12,6 @@ const row = {
   created_at: new Date('2026-10-01T12:00:00.000Z'),
   updated_at: new Date('2026-10-02T12:00:00.000Z'),
 };
-
-function fakePool(query: (text: string, values?: unknown[]) => Promise<{ rows: unknown[] }>) {
-  const spy = vi.fn(query);
-  return { pool: { query: spy } as unknown as Pool, query: spy };
-}
-
-function pgError(code: string, constraint?: string): DatabaseError {
-  return Object.assign(new DatabaseError('database error', 0, 'error'), { code, constraint });
-}
 
 describe('createServerRepository', () => {
   it('createServer passes every value as a parameter with a Node-generated UUID', async () => {

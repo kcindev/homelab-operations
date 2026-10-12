@@ -1,11 +1,14 @@
 import Fastify, { type FastifyServerOptions } from 'fastify';
 import type { ServerRepository } from './repositories/server-repository.js';
+import type { ServiceRepository } from './repositories/service-repository.js';
 import { registerServerRoutes } from './routes/servers.js';
+import { registerServiceRoutes } from './routes/services.js';
 
 export interface AppDependencies {
   /** Resolves when the database answers a trivial query; rejects otherwise. */
   checkDatabase: () => Promise<void>;
   serverRepository: ServerRepository;
+  serviceRepository: ServiceRepository;
 }
 
 export function buildApp(dependencies: AppDependencies, options: FastifyServerOptions = {}) {
@@ -85,6 +88,7 @@ export function buildApp(dependencies: AppDependencies, options: FastifyServerOp
   });
 
   registerServerRoutes(app, dependencies.serverRepository);
+  registerServiceRoutes(app, dependencies.serviceRepository, dependencies.serverRepository);
 
   return app;
 }

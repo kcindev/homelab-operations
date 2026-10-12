@@ -1,17 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import type { NewServer, Server } from '../domain/server.js';
 import { DuplicateServerNameError, type ServerRepository } from '../repositories/server-repository.js';
-
-interface ErrorResponse {
-  statusCode: number;
-  error: string;
-  message: string;
-}
-
-// format: 'uuid' is not used because Ajv also accepts a "urn:uuid:" prefix, which PostgreSQL rejects.
-const uuidPattern = '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$';
-
-const nullableString = { type: ['string', 'null'] };
+import { errorResponseSchema, nullableString, uuidParamsSchema, type ErrorResponse } from './shared-schemas.js';
 
 const serverSchema = {
   type: 'object',
@@ -29,17 +19,6 @@ const serverSchema = {
   },
 };
 
-const errorResponseSchema = {
-  type: 'object',
-  additionalProperties: false,
-  required: ['statusCode', 'error', 'message'],
-  properties: {
-    statusCode: { type: 'integer' },
-    error: { type: 'string' },
-    message: { type: 'string' },
-  },
-};
-
 const createServerBodySchema = {
   type: 'object',
   additionalProperties: false,
@@ -51,13 +30,6 @@ const createServerBodySchema = {
     operatingSystem: { type: ['string', 'null'], maxLength: 100 },
     description: { type: ['string', 'null'] },
   },
-};
-
-const serverParamsSchema = {
-  type: 'object',
-  additionalProperties: false,
-  required: ['serverId'],
-  properties: { serverId: { type: 'string', pattern: uuidPattern } },
 };
 
 export function registerServerRoutes(app: FastifyInstance, servers: ServerRepository): void {
@@ -95,7 +67,7 @@ export function registerServerRoutes(app: FastifyInstance, servers: ServerReposi
 
   app.get<{ Params: { serverId: string }; Reply: { 200: Server; 404: ErrorResponse } }>('/api/v1/servers/:serverId', {
     schema: {
-      params: serverParamsSchema,
+      params: uuidParamsSchema('serverId'),
       response: { 200: serverSchema, 404: errorResponseSchema },
     },
   }, async (request, reply) => {

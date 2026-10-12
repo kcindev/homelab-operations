@@ -3,11 +3,13 @@ import { readDatabaseUrl } from './config.js';
 import { checkDatabaseConnection } from './db/connectivity.js';
 import { createPool } from './db/pool.js';
 import { createServerRepository } from './repositories/server-repository.js';
+import { createServiceRepository } from './repositories/service-repository.js';
 
 const pool = createPool(readDatabaseUrl());
 const app = buildApp({
   checkDatabase: () => checkDatabaseConnection(pool),
   serverRepository: createServerRepository(pool),
+  serviceRepository: createServiceRepository(pool),
 });
 const port = Number(process.env.PORT ?? '3001');
 const host = process.env.HOST ?? '127.0.0.1';

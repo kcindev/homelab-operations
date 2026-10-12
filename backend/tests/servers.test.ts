@@ -4,6 +4,7 @@ import { buildApp } from '../src/app.js';
 import type { Server } from '../src/domain/server.js';
 import type { ServerRepository } from '../src/repositories/server-repository.js';
 import { createInMemoryServerRepository } from './support/in-memory-server-repository.js';
+import { createInMemoryServiceRepository } from './support/in-memory-service-repository.js';
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
@@ -27,7 +28,14 @@ const existingServerJson = {
 let app: FastifyInstance | undefined;
 
 function createApp(serverRepository: ServerRepository = createInMemoryServerRepository()) {
-  app = buildApp({ checkDatabase: async () => {}, serverRepository }, { logger: false });
+  app = buildApp(
+    {
+      checkDatabase: async () => {},
+      serverRepository,
+      serviceRepository: createInMemoryServiceRepository(serverRepository),
+    },
+    { logger: false },
+  );
   return app;
 }
 
